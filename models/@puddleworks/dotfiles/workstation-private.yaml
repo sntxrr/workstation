@@ -1,0 +1,17 @@
+type: '@puddleworks/dotfiles'
+typeVersion: 2026.11.09.1
+id: e2f0ee13-cab9-4af7-b573-85adec8f828b
+name: workstation-private
+version: 1
+tags: {}
+# Everything that needs 1Password. Kept apart from `workstation` so the base
+# setup can run on a fresh machine before 1Password is signed in.
+globalArguments:
+  target: { kind: local }
+  sourceDir: dotfiles
+  items:
+    - kind: file
+      dest: ~/.zshrc.local
+      mode: "0600"
+      content: "${{ vault.get('secrets', 'zshrc-local') }}"
+methods: {}

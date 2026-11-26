@@ -1,0 +1,6 @@
+id: 13746121-ce1f-4d09-ae1b-856e36e3f246
+name: secrets
+type: '@swamp/1password'
+config:
+  op_vault: Private
+createdAt: '2026-11-26T02:38:07.245Z'

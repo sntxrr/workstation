@@ -1,0 +1,11 @@
+swampVersion: 20261126.021835.0
+initializedAt: "2026-11-26T02:23:06.554Z"
+repoId: 42e9c498-e11a-434f-b6b0-867093847f4a
+tools:
+  - claude
+defaultVault: default
+gitignoreManaged: true
+upgradedAt: "2026-11-26T02:45:27.061Z"
+trustedCollectives:
+  - swamp
+  - puddleworks
