@@ -162,7 +162,7 @@ globalArguments:
         for b in node npm npx; do ln -sfn ~/.local/opt/$d/bin/$b ~/.local/bin/$b; done;
         cd /; rm -rf "$t"
       unless: ~/.local/bin/node --version 2>/dev/null | grep -qx 'v26\.13\.1'
-    - kind: command   # Cloudflare CLI (R2 buckets + tokens); used by @sntxrr/cloudflare-cf too
+    - kind: command   # Cloudflare CLI (R2 buckets; its OAuth login cannot mint API tokens); used by @sntxrr/cloudflare-cf too
       run: PATH="$HOME/.local/bin:$PATH" npm install -g --prefix ~/.local --no-fund --no-audit cf@1.0.0-rc.6
       unless: >-
         grep -q '"version": "1\.0\.0-rc\.6"' ~/.local/lib/node_modules/cf/package.json 2>/dev/null
@@ -183,4 +183,11 @@ globalArguments:
         tar -xzf "$f.tar.gz"; mkdir -p ~/.local/bin; install -m 0755 "$f/uv" "$f/uvx" ~/.local/bin/;
         cd /; rm -rf "$t"
       unless: ~/.local/bin/uv --version 2>/dev/null | grep -q '^uv 0\.13\.10 '
+    # --- 10) Google Chrome, for the Claude in Chrome extension (drives dashboards that have no API
+    #         path, e.g. minting R2 tokens). Flathub per-user, no sudo; the app fetches Google's build. ---
+    - kind: command
+      run: >-
+        flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo &&
+        flatpak install --user -y --noninteractive flathub com.google.Chrome
+      unless: flatpak info --user com.google.Chrome >/dev/null 2>&1
 methods: {}
