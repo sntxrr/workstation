@@ -117,4 +117,18 @@ globalArguments:
       unless: ~/.local/bin/scw version 2>/dev/null | grep -q '2\.67\.0'
     - { kind: file, src: scw/config.yaml, dest: ~/.config/scw/config.yaml, mode: "0600" }
     - { kind: file, src: scw/op.env.tmpl, dest: ~/.config/scw/op.env, template: true, mode: "0600" }
+
+    # --- 7) Beeper Desktop: no official .deb, so repackage the pinned AppImage into one
+    #        (installs to /opt/beeper; bump v + sha together to update) ---
+    - { kind: package, package: squashfs-tools }
+    - { kind: file, src: beeper/build-beeper-deb.sh, dest: ~/.local/bin/build-beeper-deb, mode: "0755" }
+    - kind: command
+      run: >-
+        set -e; v=4.3.352; t=$(mktemp -d); a="$t/Beeper-$v-x86_64.AppImage";
+        curl -fsSL -o "$a" "https://beeper-desktop.download.beeper.com/builds/Beeper-$v-x86_64.AppImage";
+        echo "b642f83d708d4e49c4a5d1e749d86c5e5cced78d6d0b7d5a937c97eba755e048  $a" | sha256sum -c -;
+        bash ~/.local/bin/build-beeper-deb "$a" "$t" "$v";
+        sudo -n apt-get install -y "$t/beeper_${v}_amd64.deb";
+        rm -rf "$t"
+      unless: dpkg-query -W -f='${Version}' beeper 2>/dev/null | grep -qx '4\.3\.352'
 methods: {}
