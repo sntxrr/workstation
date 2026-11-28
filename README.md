@@ -22,7 +22,7 @@ setup. Every step is skipped if it's already done.
 
 | Behavior | Manages |
 |---|---|
-| `workstation` | swamp, 1Password app + CLI, gh, starship + CaskaydiaCove Nerd Font, zsh + `.zshrc`, lla + synthwave_84 theme, exe.dev host key + agent skill, git config, Scaleway CLI, Beeper Desktop (AppImage repackaged as a `.deb`), storage CLIs (`b2`, AWS CLI v2, Cloudflare `cf` + Node LTS), Flameshot (Flathub) + `wl-clipboard` + `uv`, Google Chrome (Flathub, for Claude in Chrome) |
+| `workstation` | swamp, 1Password app + CLI, gh, starship + CaskaydiaCove Nerd Font, zsh + `.zshrc`, lla + synthwave_84 theme, exe.dev host key + agent skill, git config, Scaleway CLI, Beeper Desktop (AppImage repackaged as a `.deb`), Obsidian (official `.deb`, pinned), storage CLIs (`b2`, AWS CLI v2, Cloudflare `cf` + Node LTS), Flameshot (Flathub) + `wl-clipboard` + `uv`, Google Chrome (Flathub, for Claude in Chrome) |
 | `workstation-private` | `~/.zshrc.local`, written from 1Password at apply time |
 
 Source files live in `dotfiles/`; the item lists are in

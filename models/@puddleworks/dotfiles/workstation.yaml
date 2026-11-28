@@ -132,7 +132,19 @@ globalArguments:
         rm -rf "$t"
       unless: dpkg-query -W -f='${Version}' beeper 2>/dev/null | grep -qx '4\.3\.352'
 
-    # --- 8) Storage CLIs, for minting screenshot-bucket credentials (scw is item 6).
+    # --- 8) Obsidian: the official .deb from obsidianmd/obsidian-releases, pinned
+    #        (bump v + sha together; sha is the release asset's GitHub digest) ---
+    - kind: command
+      name: obsidian
+      run: >-
+        set -e; v=1.15.1; t=$(mktemp -d); d="$t/obsidian_${v}_amd64.deb";
+        curl -fsSL -o "$d" "https://github.com/obsidianmd/obsidian-releases/releases/download/v$v/obsidian_${v}_amd64.deb";
+        echo "f77b6dfc8c040214f2febad2b1b9b051b6a838a47b0f4fb90a31cfcb79b8fcec  $d" | sha256sum -c -;
+        sudo -n apt-get install -y "$d";
+        rm -rf "$t"
+      unless: dpkg-query -W -f='${Version}' obsidian 2>/dev/null | grep -qx '1\.15\.1'
+
+    # --- 9) Storage CLIs, for minting screenshot-bucket credentials (scw is item 6).
     #        All user-local in ~/.local; bump v + sha together to update. ---
     - kind: command   # Backblaze B2; sha256 from the release's b2-linux_hashes.txt
       run: >-
@@ -167,8 +179,8 @@ globalArguments:
       unless: >-
         grep -q '"version": "1\.0\.0-rc\.6"' ~/.local/lib/node_modules/cf/package.json 2>/dev/null
 
-    # --- 9) Flameshot + flameshot-python-uploader (uploads to our own storage, not Imgur).
-    #        Flathub, not apt: apt has 12.1.0, which predates usable COSMIC/Wayland capture. ---
+    # --- 10) Flameshot + flameshot-python-uploader (uploads to our own storage, not Imgur).
+    #         Flathub, not apt: apt has 12.1.0, which predates usable COSMIC/Wayland capture. ---
     - { kind: package, package: wl-clipboard }   # wl-copy puts the URL on the clipboard
     - kind: command
       run: >-
@@ -183,7 +195,7 @@ globalArguments:
         tar -xzf "$f.tar.gz"; mkdir -p ~/.local/bin; install -m 0755 "$f/uv" "$f/uvx" ~/.local/bin/;
         cd /; rm -rf "$t"
       unless: ~/.local/bin/uv --version 2>/dev/null | grep -q '^uv 0\.13\.10 '
-    # --- 10) Google Chrome, for the Claude in Chrome extension (drives dashboards that have no API
+    # --- 11) Google Chrome, for the Claude in Chrome extension (drives dashboards that have no API
     #         path, e.g. minting R2 tokens). Flathub per-user, no sudo; the app fetches Google's build. ---
     - kind: command
       run: >-
