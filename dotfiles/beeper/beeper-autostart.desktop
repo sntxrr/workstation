@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Beeper
+Comment=Start Beeper at login
+Exec=/opt/beeper/beepertexts
+Icon=beeper
+StartupNotify=false
+Terminal=false
+X-GNOME-Autostart-enabled=true
