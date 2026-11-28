@@ -22,7 +22,7 @@ setup. Every step is skipped if it's already done.
 
 | Behavior | Manages |
 |---|---|
-| `workstation` | swamp, 1Password app + CLI, gh, starship + CaskaydiaCove Nerd Font, zsh + `.zshrc`, lla + synthwave_84 theme, exe.dev host key + agent skill, git config, Scaleway CLI, Beeper Desktop (AppImage repackaged as a `.deb`) |
+| `workstation` | swamp, 1Password app + CLI, gh, starship + CaskaydiaCove Nerd Font, zsh + `.zshrc`, lla + synthwave_84 theme, exe.dev host key + agent skill, git config, Scaleway CLI, Beeper Desktop (AppImage repackaged as a `.deb`), Fluxer (from its apt repo) |
 | `workstation-private` | `~/.zshrc.local`, written from 1Password at apply time |
 
 Source files live in `dotfiles/`; the item lists are in
