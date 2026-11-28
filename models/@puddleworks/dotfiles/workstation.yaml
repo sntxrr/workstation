@@ -45,11 +45,23 @@ globalArguments:
       unless: >-
         test -s /etc/apt/keyrings/githubcli-archive-keyring.gpg &&
         test -f /etc/apt/sources.list.d/github-cli.list
+    - kind: command   # Fluxer repo (deb822 .sources + binary keyring), per pkgs.fluxer.com
+      run: >-
+        set -e; sudo -n install -d -m 0755 /etc/apt/keyrings;
+        sudo -n curl -fsSL -o /etc/apt/keyrings/fluxer-archive-keyring.gpg
+        https://pkgs.fluxer.com/keys/fluxer-archive-keyring.gpg;
+        sudo -n curl -fsSL -o /etc/apt/sources.list.d/fluxer.sources
+        https://pkgs.fluxer.com/deb/fluxer.sources;
+        sudo -n apt-get update -qq
+      unless: >-
+        test -s /etc/apt/keyrings/fluxer-archive-keyring.gpg &&
+        test -s /etc/apt/sources.list.d/fluxer.sources
 
-    # --- 1Password app + CLI, GitHub CLI ---
+    # --- 1Password app + CLI, GitHub CLI, Fluxer ---
     - { kind: package, package: 1password }
     - { kind: package, package: 1password-cli }
     - { kind: package, package: gh }
+    - { kind: package, package: fluxer }
 
     # --- 1) starship + CaskaydiaCove Nerd Font (same font as ufo) ---
     - kind: command
