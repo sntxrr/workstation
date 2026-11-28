@@ -143,4 +143,63 @@ globalArguments:
         sudo -n apt-get install -y "$d";
         rm -rf "$t"
       unless: dpkg-query -W -f='${Version}' obsidian 2>/dev/null | grep -qx '1\.15\.1'
+
+    # --- 9) Storage CLIs, for minting screenshot-bucket credentials (scw is item 6).
+    #        All user-local in ~/.local; bump v + sha together to update. ---
+    - kind: command   # Backblaze B2; sha256 from the release's b2-linux_hashes.txt
+      run: >-
+        set -e; v=5.0.3; t=$(mktemp -d); cd "$t";
+        curl -fsSL -o b2 "https://github.com/Backblaze/B2_Command_Line_Tool/releases/download/v$v/b2-linux";
+        echo "901f3a8d1e5e300e9067332850c1a32cf4946803c2d936ea97cab4e3e70a6ab1  b2" | sha256sum -c -;
+        mkdir -p ~/.local/bin; install -m 0755 b2 ~/.local/bin/b2;
+        cd /; rm -rf "$t"
+      unless: ~/.local/bin/b2 version 2>/dev/null | grep -q 'version 5\.0\.3 '
+    # AWS CLI v2. AWS publishes a PGP signature, not a checksum: the sha below was
+    # pinned after `gpg --verify` gave GOODSIG from the AWS CLI Team key
+    # FB5D B77F D5C1 18B8 0511 ADA8 A631 0ACC 4672 475C (expires 2027-07-01).
+    - kind: command
+      run: >-
+        set -e; v=2.42.4; t=$(mktemp -d); cd "$t";
+        curl -fsSL -o aws.zip "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-$v.zip";
+        echo "8998885d7fc32370c50efc2e44746c34b222a03d70015113a5554f98be79165c  aws.zip" | sha256sum -c -;
+        unzip -q aws.zip; ./aws/install -i ~/.local/aws-cli -b ~/.local/bin --update;
+        cd /; rm -rf "$t"
+      unless: ~/.local/bin/aws --version 2>/dev/null | grep -q '^aws-cli/2\.42\.4 '
+    - kind: command   # Node LTS, only to run cf; sha256 from nodejs.org SHASUMS256.txt
+      run: >-
+        set -e; v=26.13.1; d=node-v$v-linux-x64; t=$(mktemp -d); cd "$t";
+        curl -fsSLO "https://nodejs.org/dist/v$v/$d.tar.xz";
+        echo "5c063e46bab0fbc1c17cc445d7ff129cbdcd0471be6ed83b6ab864f8143bc864  $d.tar.xz" | sha256sum -c -;
+        mkdir -p ~/.local/opt ~/.local/bin; rm -rf ~/.local/opt/$d; tar -xJf "$d.tar.xz" -C ~/.local/opt;
+        for b in node npm npx; do ln -sfn ~/.local/opt/$d/bin/$b ~/.local/bin/$b; done;
+        cd /; rm -rf "$t"
+      unless: ~/.local/bin/node --version 2>/dev/null | grep -qx 'v26\.13\.1'
+    - kind: command   # Cloudflare CLI (R2 buckets; its OAuth login cannot mint API tokens); used by @sntxrr/cloudflare-cf too
+      run: PATH="$HOME/.local/bin:$PATH" npm install -g --prefix ~/.local --no-fund --no-audit cf@1.0.0-rc.6
+      unless: >-
+        grep -q '"version": "1\.0\.0-rc\.6"' ~/.local/lib/node_modules/cf/package.json 2>/dev/null
+
+    # --- 10) Flameshot + flameshot-python-uploader (uploads to our own storage, not Imgur).
+    #         Flathub, not apt: apt has 12.1.0, which predates usable COSMIC/Wayland capture. ---
+    - { kind: package, package: wl-clipboard }   # wl-copy puts the URL on the clipboard
+    - kind: command
+      run: >-
+        flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo &&
+        flatpak install --user -y --noninteractive flathub org.flameshot.Flameshot
+      unless: flatpak info --user org.flameshot.Flameshot >/dev/null 2>&1
+    - kind: command   # uv runs the uploader; sha256 from the release's .sha256 asset
+      run: >-
+        set -e; v=0.13.10; f=uv-x86_64-unknown-linux-gnu; t=$(mktemp -d); cd "$t";
+        curl -fsSLO "https://github.com/astral-sh/uv/releases/download/$v/$f.tar.gz";
+        echo "bf65ac1a0af10f92c522d91ac096c7c0a39657647b155577e7836c2cbbb4526c  $f.tar.gz" | sha256sum -c -;
+        tar -xzf "$f.tar.gz"; mkdir -p ~/.local/bin; install -m 0755 "$f/uv" "$f/uvx" ~/.local/bin/;
+        cd /; rm -rf "$t"
+      unless: ~/.local/bin/uv --version 2>/dev/null | grep -q '^uv 0\.13\.10 '
+    # --- 11) Google Chrome, for the Claude in Chrome extension (drives dashboards that have no API
+    #         path, e.g. minting R2 tokens). Flathub per-user, no sudo; the app fetches Google's build. ---
+    - kind: command
+      run: >-
+        flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo &&
+        flatpak install --user -y --noninteractive flathub com.google.Chrome
+      unless: flatpak info --user com.google.Chrome >/dev/null 2>&1
 methods: {}
