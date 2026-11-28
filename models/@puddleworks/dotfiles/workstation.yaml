@@ -122,6 +122,7 @@ globalArguments:
     #        (installs to /opt/beeper; bump v + sha together to update) ---
     - { kind: package, package: squashfs-tools }
     - { kind: file, src: beeper/build-beeper-deb.sh, dest: ~/.local/bin/build-beeper-deb, mode: "0755" }
+    - { kind: file, src: beeper/beeper-autostart.desktop, dest: ~/.config/autostart/beeper.desktop }   # Beeper can't register itself from /opt
     - kind: command
       run: >-
         set -e; v=4.3.352; t=$(mktemp -d); a="$t/Beeper-$v-x86_64.AppImage";
