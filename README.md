@@ -22,8 +22,13 @@ setup. Every step is skipped if it's already done.
 
 | Behavior | Manages |
 |---|---|
-| `workstation` | swamp, 1Password app + CLI, gh, starship + CaskaydiaCove Nerd Font, zsh + `.zshrc`, lla + synthwave_84 theme, exe.dev host key + agent skill, git config, Scaleway CLI, Beeper Desktop (AppImage repackaged as a `.deb`) |
+| `workstation` | swamp, 1Password app + CLI, gh, starship + CaskaydiaCove Nerd Font, zsh + `.zshrc`, lla + synthwave_84 theme, exe.dev host key + agent skill, git config, Scaleway CLI, Beeper Desktop (AppImage repackaged as a `.deb`), Claude Code status line, Herdr nightwire layout |
 | `workstation-private` | `~/.zshrc.local`, written from 1Password at apply time |
+| `ufo` | The Mac mini, over ssh from here: starship config, Claude Code status line, Herdr nightwire layout |
+
+The Herdr layout is [jpisgeek/nightwire](https://github.com/jpisgeek/nightwire),
+installed by its own `install.sh` from a pinned commit; nothing of it is kept
+in this repo. A `jq` step then applies my two size tweaks to the layout.
 
 Source files live in `dotfiles/`; the item lists are in
 `models/@puddleworks/dotfiles/`.

@@ -1,0 +1,45 @@
+type: '@puddleworks/dotfiles'
+typeVersion: 2026.11.09.1
+id: 495081c5-fefd-4385-9325-47a16af0c6fd
+name: ufo
+version: 1
+tags: {}
+# ufo: the Mac mini (macOS), reached over Tailscale ssh from pop-os.
+# Only the pieces shared with the Pop!_OS workstation; nothing Linux-specific.
+globalArguments:
+  target: { kind: ssh, host: ufo, user: sntxrr }
+  sourceDir: dotfiles
+  items:
+    # --- starship prompt config (same file as pop-os) ---
+    - { kind: file, src: starship/starship.toml, dest: ~/.config/starship.toml }
+
+    # --- Claude Code status line (jq ships with macOS) ---
+    - { kind: file, src: claude/statusline-command.sh, dest: ~/.claude/statusline-command.sh }
+    - kind: command
+      name: claude-statusline-setting
+      run: >-
+        set -e; f=~/.claude/settings.json; mkdir -p ~/.claude; [ -s "$f" ] || echo '{}' > "$f";
+        jq '.statusLine = {"type":"command","command":"bash ~/.claude/statusline-command.sh"}' "$f" > "$f.tmp"
+        && mv "$f.tmp" "$f"
+      unless: jq -e '.statusLine.command | test("statusline-command\\.sh")' ~/.claude/settings.json >/dev/null 2>&1
+
+    # --- Herdr: jpisgeek/nightwire, pinned (see workstation.yaml) ---
+    - kind: command
+      name: herdr-nightwire
+      run: >-
+        set -e; export PATH="$HOME/.local/bin:$PATH"; t=$(mktemp -d);
+        git clone -q https://github.com/jpisgeek/nightwire.git "$t";
+        git -C "$t" checkout -q 3cdc52d12987ed72a7c66cadb858bcd49e61a8a7;
+        sh "$t/install.sh"; rm -rf "$t"
+      unless: test -d ~/.config/herdr-app/mods/nightwire-fleet
+    - kind: command
+      name: herdr-nightwire-tweaks
+      run: >-
+        set -e; f=~/.config/herdr-app/layouts/nightwire.json;
+        jq '(.. | objects | select(.id == "sidebar-head") | .size.px) = 24
+        | (.. | objects | select(.id == "sidebar") | .size.px) = 277' "$f" > "$f.tmp"
+        && mv "$f.tmp" "$f"
+      unless: >-
+        jq -e '[.. | objects | select(.id == "sidebar-head" or .id == "sidebar") | .size.px]
+        == [277, 24]' ~/.config/herdr-app/layouts/nightwire.json >/dev/null 2>&1
+methods: {}

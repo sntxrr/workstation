@@ -131,4 +131,36 @@ globalArguments:
         sudo -n apt-get install -y "$t/beeper_${v}_amd64.deb";
         rm -rf "$t"
       unless: dpkg-query -W -f='${Version}' beeper 2>/dev/null | grep -qx '4\.3\.352'
+
+    # --- 8) Claude Code status line (mirrors the starship prompt; same as ufo) ---
+    - { kind: package, package: jq }
+    - { kind: file, src: claude/statusline-command.sh, dest: ~/.claude/statusline-command.sh }
+    - kind: command   # point settings.json at it without owning the rest of the file
+      name: claude-statusline-setting
+      run: >-
+        set -e; f=~/.claude/settings.json; mkdir -p ~/.claude; [ -s "$f" ] || echo '{}' > "$f";
+        jq '.statusLine = {"type":"command","command":"bash ~/.claude/statusline-command.sh"}' "$f" > "$f.tmp"
+        && mv "$f.tmp" "$f"
+      unless: jq -e '.statusLine.command | test("statusline-command\\.sh")' ~/.claude/settings.json >/dev/null 2>&1
+
+    # --- 9) Herdr: jpisgeek/nightwire layout, installed from upstream at a pinned
+    #        commit (nothing of it is vendored here), then my two size tweaks ---
+    - kind: command
+      name: herdr-nightwire
+      run: >-
+        set -e; export PATH="$HOME/.local/bin:$PATH"; t=$(mktemp -d);
+        git clone -q https://github.com/jpisgeek/nightwire.git "$t";
+        git -C "$t" checkout -q 3cdc52d12987ed72a7c66cadb858bcd49e61a8a7;
+        sh "$t/install.sh"; rm -rf "$t"
+      unless: test -d ~/.config/herdr-app/mods/nightwire-fleet
+    - kind: command   # compact sidebar header (46 -> 24px), sidebar 277px wide
+      name: herdr-nightwire-tweaks
+      run: >-
+        set -e; f=~/.config/herdr-app/layouts/nightwire.json;
+        jq '(.. | objects | select(.id == "sidebar-head") | .size.px) = 24
+        | (.. | objects | select(.id == "sidebar") | .size.px) = 277' "$f" > "$f.tmp"
+        && mv "$f.tmp" "$f"
+      unless: >-
+        jq -e '[.. | objects | select(.id == "sidebar-head" or .id == "sidebar") | .size.px]
+        == [277, 24]' ~/.config/herdr-app/layouts/nightwire.json >/dev/null 2>&1
 methods: {}
