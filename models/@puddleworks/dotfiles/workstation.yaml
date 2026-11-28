@@ -134,6 +134,7 @@ globalArguments:
     #        (installs to /opt/beeper; bump v + sha together to update) ---
     - { kind: package, package: squashfs-tools }
     - { kind: file, src: beeper/build-beeper-deb.sh, dest: ~/.local/bin/build-beeper-deb, mode: "0755" }
+    - { kind: file, src: beeper/beeper-autostart.desktop, dest: ~/.config/autostart/beeper.desktop }   # Beeper can't register itself from /opt
     - kind: command
       run: >-
         set -e; v=4.3.352; t=$(mktemp -d); a="$t/Beeper-$v-x86_64.AppImage";
@@ -143,4 +144,16 @@ globalArguments:
         sudo -n apt-get install -y "$t/beeper_${v}_amd64.deb";
         rm -rf "$t"
       unless: dpkg-query -W -f='${Version}' beeper 2>/dev/null | grep -qx '4\.3\.352'
+
+    # --- 8) Obsidian: the official .deb from obsidianmd/obsidian-releases, pinned
+    #        (bump v + sha together; sha is the release asset's GitHub digest) ---
+    - kind: command
+      name: obsidian
+      run: >-
+        set -e; v=1.15.1; t=$(mktemp -d); d="$t/obsidian_${v}_amd64.deb";
+        curl -fsSL -o "$d" "https://github.com/obsidianmd/obsidian-releases/releases/download/v$v/obsidian_${v}_amd64.deb";
+        echo "f77b6dfc8c040214f2febad2b1b9b051b6a838a47b0f4fb90a31cfcb79b8fcec  $d" | sha256sum -c -;
+        sudo -n apt-get install -y "$d";
+        rm -rf "$t"
+      unless: dpkg-query -W -f='${Version}' obsidian 2>/dev/null | grep -qx '1\.15\.1'
 methods: {}
